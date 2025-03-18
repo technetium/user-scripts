@@ -10,15 +10,14 @@
 (function() {
     'use strict';
 
-	function main() {
-		const elem = document.getElementById('ctl00_ContentBody_lnkPrintDirectionsSimple');
-		if (elem) {
-			console.warn(elem.href);
+    function main() {
+        const elem = document.getElementById('ctl00_ContentBody_lnkPrintDirectionsSimple');
+        if (elem) {
             const orig = elem.href.replace(/.*saddr=/, '').replace(/%20.*/, '');
             const dest = elem.href.replace(/.*daddr=/, '').replace(/%20.*/, '');
             console.warn(orig, dest);
             elem.href = 'https://www.openstreetmap.org/directions?route='+orig+'%3B'+dest;
- 		}
 	}
-	main();
+    }
+    main();
 })();
