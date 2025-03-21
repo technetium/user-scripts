@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OSM Directions
 // @namespace    http://technetium.be
-// @version      1.0
+// @version      1.1
 // @description  Replaces the links to GoogleDirections to OpenStreetMap directions
 // @author       Toni Cornelissen (github@technetium.be)
 // @match        *://*.geocaching.com/geocache/*
@@ -11,13 +11,12 @@
     'use strict';
 
     function main() {
-        const elem = document.getElementById('ctl00_ContentBody_lnkPrintDirectionsSimple');
-        if (elem) {
+        document.querySelectorAll('a[href^="https://maps.google.com/maps\\?f=d"]').forEach((elem) => {
+            console.error(elem);
             const orig = elem.href.replace(/.*saddr=/, '').replace(/%20.*/, '');
             const dest = elem.href.replace(/.*daddr=/, '').replace(/%20.*/, '');
-            console.warn(orig, dest);
             elem.href = 'https://www.openstreetmap.org/directions?route='+orig+'%3B'+dest;
-	}
+        });
     }
     main();
 })();
