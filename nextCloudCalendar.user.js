@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name         NextCloud Calendar
 // @namespace    http://technetium.be
-// @version      1.1
+// @version      1.2
 // @description  Replaces the links to Google Calendar to NextCloud calendar
 // @author       Toni Cornelissen (github@technetium.be)
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @match        *://*.geocaching.com/geocache/*
-// @match		 *://*/apps/calendar/*
+// @match        *://*/apps/calendar/*
 // ==/UserScript==
 
 (function() {
-    'use strict';
+	'use strict';
 
 	const nextCloudServer = 'https://use07.thegood.cloud';
 
@@ -42,7 +42,7 @@
 	}
 
 
-    function onClick(e) {
+	function onClick(e) {
 		if ('A' !== e.target.tagName) return;
 		if (!e.target.href.match(/https?:\/\/www.google.com\/calendar\/event/)) return;
 		const sp = new URLSearchParams(e.target.search);
@@ -79,7 +79,6 @@
 			// Using a listener to get links that are added after the loading of the page
 			document.addEventListener("click", onClick);
 		}
-    }
-    main();
+	}
+	main();
 })();
-
