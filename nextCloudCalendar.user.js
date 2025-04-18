@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NextCloud Calendar
 // @namespace    http://technetium.be
-// @version      1.3
+// @version      1.3.1
 // @description  Replaces the links to Google Calendar to NextCloud calendar
 // @author       Toni Cornelissen (github@technetium.be)
 // @grant        GM_getValue
@@ -38,7 +38,7 @@
 	function setValue(qs, val) {
 		waitForElem(qs).then(elem => {
 			elem.value = val;
-			# Set more variables and dispatch an event to get vue to do what I want it to do
+			// Set more variables and dispatch an event to get vue to do what I want it to do
 			elem._value = val;
 			elem.dispatchEvent(new Event('input', { bubbles: true }));
 		});
