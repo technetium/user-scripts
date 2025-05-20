@@ -7,6 +7,8 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @match        *://*.geocaching.com/geocache/*
+// @match        *://*.geocaching.com/geocache/*
+// @match        *://*.google.com/mail
 // @match        *://*/apps/calendar/*
 // ==/UserScript==
 
