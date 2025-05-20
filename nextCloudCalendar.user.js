@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         NextCloud Calendar
 // @namespace    http://technetium.be
-// @version      1.3.1
+// @version      1.3.2
 // @description  Replaces the links to Google Calendar to NextCloud calendar
 // @author       Toni Cornelissen (github@technetium.be)
 // @grant        GM_getValue
