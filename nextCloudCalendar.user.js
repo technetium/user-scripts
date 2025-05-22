@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         NextCloud Calendar
 // @namespace    http://technetium.be
-// @version      1.3.2
+// @version      1.3.3
 // @description  Replaces the links to Google Calendar to NextCloud calendar
 // @author       Toni Cornelissen (github@technetium.be)
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @match        *://*.geocaching.com/geocache/*
-// @match        *://*.google.com/mail
+// @match        *://*.google.com/calendar/*
 // @match        *://*/apps/calendar/*
 // ==/UserScript==
 
@@ -45,6 +45,30 @@
 		});
 	}
 
+	function parseSearch(sp) {
+		const dates = sp
+			.get('dates')
+			.split('/')
+			.map(d => Date.parse(d.replace(/(\d*)(\d\d)(\d\d)T(\d\d)(\d\d)(.*)/, '$1-$2-$3T$4:$5:$6'))/1000)
+		;
+		return {
+			dtstart: dates[0],
+			dtend: dates[1],
+			title: sp.get('text'),
+			description: sp.get('details'),
+			location: sp.get('location'),
+		}
+	}
+
+	function setLocation(params) {
+		window.location.href =
+			GM_getValue('nextCloudServer')
+			+ '/apps/calendar/dayGridMonth/now/new/popover/0/'
+			+ params.dtstart + '/' + params.dtend
+			+ '?title=' + encodeURIComponent(params.title)
+			+ '&description=' + encodeURIComponent(params.description)
+			+ '&location=' + encodeURIComponent(params.location)
+	}
 
 	function onClick(e) {
 		if ('A' !== e.target.tagName) return;
@@ -52,18 +76,7 @@
 		const sp = new URLSearchParams(e.target.search);
 		if ('TEMPLATE' != sp.get('action')) return;
 		e.preventDefault();
-		const dates = sp
-			.get('dates')
-			.split('/')
-			.map(d => Date.parse(d.replace(/(\d*)(\d\d)(\d\d)T(\d\d)(\d\d)(.*)/, '$1-$2-$3T$4:$5:$6'))/1000)
-		;
-		window.location.href =
-			GM_getValue('nextCloudServer')
-			+ '/apps/calendar/dayGridMonth/now/new/popover/0/'
-			+ dates[0] + '/' + dates[1]
-			+ '?title=' + encodeURIComponent(sp.get('text'))
-			+ '&description=' + encodeURIComponent(sp.get('details'))
-			+ '&location=' + encodeURIComponent(sp.get('location'))
+		setLocation(parseSearch(sp));
 	}
 
 	function fillPopover() {
@@ -74,15 +87,27 @@
 	}
 
 	function main() {
+		console.warn(window.location);
+		console.warn(window.location.hostname);
+		console.warn(window.location.pathname);
 		if (window.location.pathname.startsWith('/apps/calendar/dayGridMonth/now/new/popover/0/')) {
 			fillPopover();
 		} else if (window.location.pathname.startsWith('/apps/calendar/')) {
 			// This is probably the nextCloud calendar service that is being used, store it
 			GM_setValue('nextCloudServer', window.location.protocol + '//' +window.location.host);
 		} else if (GM_getValue('nextCloudServer', '')) {
-			// Using a listener to get links that are added after the loading of the page
-			document.addEventListener("click", onClick);
+			if (
+				window.location.hostname.endsWith('google.com') &&
+				window.location.pathname.startsWith('/calendar/u/0/r/eventedit')
+			) {
+				// Gmail screws with the click event, when we end up on the edit google calender page: Redirect
+				setLocation(parseSearch(new URLSearchParams(window.location.search)));
+			} else {
+				// Using a listener to get links that are added after the loading of the page
+				document.addEventListener("click", onClick);
+			}
 		}
 	}
+
 	main();
 })();
