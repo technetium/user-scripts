@@ -87,9 +87,6 @@
 	}
 
 	function main() {
-		console.warn(window.location);
-		console.warn(window.location.hostname);
-		console.warn(window.location.pathname);
 		if (window.location.pathname.startsWith('/apps/calendar/dayGridMonth/now/new/popover/0/')) {
 			fillPopover();
 		} else if (window.location.pathname.startsWith('/apps/calendar/')) {
