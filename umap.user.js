@@ -24,13 +24,34 @@
         elem.style.zIndex = 99999;
         elem.position = 'absolute';
         */
-        elem.innerHTML = '' +
-            '<ul class="buttons">' +
-                '<li class=""><button class="icon icon-16 icon-close" title="Close"></button></li>' +
-                '<li class=""><button class="icon icon-16 icon-resize" title="Toggle size"></button></li>' +
-            '</ul>' +
-            '<div class="body"><div><form data-ref="form"><h3><i class="icon icon-24 icon-template"></i>Add points to route</h3><p>Explanation.</p><div class="formbox"><div class="flat-tabs" data-ref="tabs">           <button type="button" class="flat" data-value="mine" data-ref="mine" hidden="">My templates</button>           <button type="button" class="flat on" data-value="staff">From staff</button>           <button type="button" class="flat" data-value="community">From community</button>         </div>         <div data-ref="body" class="body"><ul><li>                 <label>                   <input type="radio" value="1239140" name="template">Randonnée                   <a href="/en/map/randonnee_1239140" target="_blank"><nobr>Explore<i class="icon icon-16 icon-external-link"></i></nobr></a>                 </label>               </li></ul></div>         <div class="button-bar half">           <button type="button" class="primary" data-ref="confirm" disabled="">Load template</button>           <button type="button" data-ref="confirmData" disabled="">Load template with data</button>         </div>       </div>     </form>   </div></div>';
-
+        elem.innerHTML = `
+            <ul class="buttons">
+                <li class=""><button class="icon icon-16 icon-close" title="Close"></button></li>
+                <li class=""><button class="icon icon-16 icon-resize" title="Toggle size"></button></li>
+            </ul>
+            <div class="body"><div><form data-ref="form">
+                <h3><i class="icon icon-24 icon-template"></i>Add points to route</h3>
+                <p>Explanation.</p>
+                <!--
+                <div class="formbox">
+                    <div class="flat-tabs" data-ref="tabs">
+                        <button type="button" class="flat" data-value="mine" data-ref="mine" hidden="">My templates</button>
+                        <button type="button" class="flat on" data-value="staff">From staff</button>
+                        <button type="button" class="flat" data-value="community">From community</button>
+                    </div>
+                    <div data-ref="body" class="body">
+                        <ul><li><label>
+                            <input type="radio" value="1239140" name="template">Randonnée<a href="/en/map/randonnee_1239140" target="_blank"><nobr>Explore<i class="icon icon-16 icon-external-link"></i></nobr></a>
+                        </label></li></ul>
+                    </div>
+                    <div class="button-bar half">
+                        <button type="button" class="primary" data-ref="confirm" disabled="">Load template</button>
+                        <button type="button" data-ref="confirmData" disabled="">Load template with data</button>
+                    </div>
+                </div>
+                -->
+            </form></div></div>
+        `;
 
         elem.addEventListener('click', removeModal);
         const hr = document.querySelector('.umap-main-edit-toolbox');
