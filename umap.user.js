@@ -51,12 +51,7 @@
                 <p>Explanation.</p>
                 <div class="formbox">
                     <div class="flat-tabs" data-ref="tabs">
-						<!--
-                        <button type="button" class="flat" data-value="mine" data-ref="mine" hidden="">My templates</button>
-                        <button type="button" class="flat on" data-value="staff">From staff</button>
-                        <button type="button" class="flat" data-value="community">From community</button>
-						-->
-						API Key: <input name="GraphHopperApiKey" id="GraphHopperApiKey" />
+						API Key: <input name="graphHopperApiKey" id="graphHopperApiKey" />
 					</div>
                     <div data-ref="body" class="body">
 						<ul id="routePoints">
@@ -78,6 +73,7 @@
         const hr = document.querySelector('.umap-main-edit-toolbox');
         console.log(hr)
         hr.parentNode.insertBefore(elem, hr);
+		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
         document.getElementById('routingModalClose').addEventListener('click', removeRoutingModal);
 		document.getElementById('addRouteButton').addEventListener('click', addRoute);
     }
@@ -99,10 +95,11 @@
         const elem = document.createElement("li");
         elem.dataset.ref = "route";
         elem.innerHTML = '<button type="button" data-getstarted="" title="Draw a route (Ctrl+R)"><i class="icon icon-24 icon-empty"></i></button>';
-        //elem.addEventListener('click', showRoutingModal);
-        elem.addEventListener('click', importData);
-        const hr = document.querySelector('.umap-edit-bar hr');
-        hr.parentNode.insertBefore(elem, hr);
+        elem.addEventListener('click', showRoutingModal);
+        //elem.addEventListener('click', importData);
+		waitForElm('.umap-edit-bar hr').then((hr) => {
+			hr.parentNode.insertBefore(elem, hr);
+		});
     }
 
 	function idFromElement(elem) {
@@ -141,7 +138,9 @@
 
 	function addRoute() {
 		console.log('AddRoute()');
-		const url = 'https://graphhopper.com/api/1/route?key=' + document.getElementById('GraphHopperApiKey').value;
+		const apiKey = document.getElementById('graphHopperApiKey').value;
+		localStorage.setItem('graphHopperApiKey', apiKey);
+		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
 		const headers = new Headers();
 		headers.append("Content-Type", "application/json");
 		
@@ -166,17 +165,40 @@
 			}
 		)
 			.then(res => res.json())
-			.then(json => console.log(json))
+			.then(json => {
+				const ids = Array
+					.from(document.getElementById('routePoints').children)
+					.map(elem => elem.dataset.featureId)
+					.join(',')
+				const name = Array
+					.from(document.getElementById('routePoints').children)
+					.map(elem => nameFromId(elem.dataset.featureId) || elem.dataset.featureId)
+					.join(' - ')
+				removeRoutingModal();
+				const distance =  new Intl.NumberFormat("en-EN", { style: "unit", unit: "kilometer",}).format(json.paths[0].distance / 1000);
+				const duration = new Date(json.paths[0].time).toISOString().substr(11, 8);
+				importData({
+					"type": "Feature",
+					"geometry": json.paths[0].points,
+					"properties": {
+						"name": name,
+						"description": `Distance: ${distance}\nDuration: ${duration}`,
+                        "feature-ids": ids,
+					}
+				});
+			})
 			.catch(error => console.error(error))
 		;
 	}
 
-	function importData() {
+	function importData(geojson) {
 		document.querySelector('li[data-ref="import"] button').click();
 		waitForElm('.umap-import textarea').then((elm) => {
-			document.querySelector('.umap-import textarea').value="Hoera";
+			document.querySelector('.umap-import textarea').value = JSON.stringify(geojson)
 			document.querySelector('.umap-import select[name="format"]').value = 'geojson';
 			document.querySelector('.umap-import select[name="layer-id"]').value = document.querySelector('.umap-import select[name="layer-id"] option').value;
+			document.querySelector('.umap-import input.button').disabled=false;
+			document.querySelector('.umap-import input.button').click();
 
 		});
 	}
