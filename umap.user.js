@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         uMap Routing
 // @namespace    http://umaprouting.technetium.be
-// @version      v0.0.1
+// @version      v0.0.2
 // @description  Add routing to uMap
 // @author       Toni Cornelissen
 // @match        https://umap.openstreetmap.fr/*
@@ -78,16 +78,10 @@ ToDo:
 					</div>
                     <div data-ref="body" class="body">
 						<ul id="routePoints">
-						<!--
-                        <ul><li><label>
-                            <input type="radio" value="1239140" name="template">Randonnée<a href="/en/map/randonnee_1239140" target="_blank"><nobr>Explore<i class="icon icon-16 icon-external-link"></i></nobr></a>
-                        </label></li>
-						-->
 						</ul>
                     </div>
                     <div class="button-bar half">
-                        <button type="button" class="primary" data-ref="confirm" id="addRouteButton">Add Route</button>
-                        <button type="button" data-ref="confirmData" disabled="">Load template with data</button>
+                        <button type="button" class="primary" data-ref="confirm" id="addRouteButton" disabled="disabled">Add Route</button>
                     </div>
                 </div>
             </form></div></div>
@@ -117,7 +111,7 @@ ToDo:
         console.log('addRoutingIcon');
         const elem = document.createElement("li");
         elem.dataset.ref = "route";
-        elem.innerHTML = '<button type="button" data-getstarted="" title="Draw a route (Ctrl+R)"><i class="icon icon-24 icon-empty"></i></button>';
+        elem.innerHTML = '<button type="button" data-getstarted="" title="Draw a route (Ctrl+R)"><i class="icon icon-24 icon-clone"></i></button>';
         elem.addEventListener('click', showRoutingModal);
         //elem.addEventListener('click', importData);
 		waitForElm('.umap-edit-bar hr').then((hr) => {
@@ -157,6 +151,10 @@ ToDo:
 		elem.textContent = name || id;
 		const hr = document.getElementById('routePoints');
 		hr.appendChild(elem);
+		document.getElementById('addRouteButton').disabled = (
+			(!document.getElementById("graphHopperApiKey").value) ||
+			(hr.childElementCount < 2)
+		);
 	}
 
 	function addRoute() {
