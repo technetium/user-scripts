@@ -8,6 +8,29 @@
 // @grant        none
 // ==/UserScript==
 
+/*
+
+This script adds option to add routing to umap
+intended as a proof of concept to resolve 
+https://github.com/umap-project/umap/issues/297
+
+This is done by adding a route icon to the edit toolbar.
+ToDo: Create a more sensible icon
+Clicking on it will open a modal where the route can be defined.
+The route is defined by clicking on the points that will be part of the route
+Routing is done via GraphHopper, a GraphHopper api key must also be entered.
+The api key is stored in localStorage, saving it for future use.
+ToDo: Create input options for other GraphHopper parameters
+
+When GraphHopper has calculated the route, it's imported via manipulation
+of the import modal, not an elegant solution, but it works. 
+
+ToDo:
+	- When a route is added, make it possible to edit the points (delete, add, reorder) and recalculate the route.
+
+*/
+
+
 (function() {
     'use strict';
 
@@ -199,20 +222,16 @@
 			document.querySelector('.umap-import select[name="layer-id"]').value = document.querySelector('.umap-import select[name="layer-id"] option').value;
 			document.querySelector('.umap-import input.button').disabled=false;
 			document.querySelector('.umap-import input.button').click();
-
+			document.querySelector('div[data-highlight="import"] button[title="Close"]').click();
 		});
 	}
-	
-
 
     function onClick(e) {
         if (!document.getElementById('routingModal')) { return; }
         //console.log(e);
         const id = idFromElement(e.target);
-		const name = nameFromId(id);
-		const coords = coordinatesFromId(id);
 		if (id) {
-			addToRoute(id, name);
+			addToRoute(id, nameFromId(id));
 		}
     }
 
