@@ -73,10 +73,14 @@ ToDo:
                 <h3><i class="icon icon-24 icon-template"></i>Add points to route</h3>
                 <p>Explanation.</p>
                 <div class="formbox">
-                    <div class="flat-tabs" data-ref="tabs">
-						API Key: <input name="graphHopperApiKey" id="graphHopperApiKey" />
-					</div>
                     <div data-ref="body" class="body">
+						API Key: <input name="graphHopperApiKey" id="graphHopperApiKey" />
+						<br />
+						Routing Type: <select name id="graphHopperProfile" name="graphHopperProfile">
+							<option value="car">Car</option>
+							<option value="bike">Bike</option>
+							<option value="foot">Foot</option>
+						</select>
 						<ul id="routePoints">
 						</ul>
                     </div>
@@ -91,6 +95,7 @@ ToDo:
         console.log(hr)
         hr.parentNode.insertBefore(elem, hr);
 		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
+		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
         document.getElementById('routingModalClose').addEventListener('click', removeRoutingModal);
 		document.getElementById('addRouteButton').addEventListener('click', addRoute);
     }
@@ -160,7 +165,9 @@ ToDo:
 	function addRoute() {
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
+		const profile = document.getElementById('graphHopperProfile').value;
 		localStorage.setItem('graphHopperApiKey', apiKey);
+		localStorage.setItem('graphHopperProfile', profile);
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
 		const headers = new Headers();
 		headers.append("Content-Type", "application/json");
@@ -171,7 +178,7 @@ ToDo:
 				.from(document.getElementById('routePoints').children)
 				.map(elem => coordinatesFromId(elem.dataset.featureId)),
 			points_encoded: false,	
-			profile: 'car',
+			profile: profile,
 		}
 		console.log(data);
 		console.log(JSON.stringify(data));
@@ -205,6 +212,7 @@ ToDo:
 						"name": name,
 						"description": `Distance: ${distance}\nDuration: ${duration}`,
                         "feature-ids": ids,
+						"profile": profile,
 					}
 				});
 			})
