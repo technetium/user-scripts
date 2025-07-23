@@ -175,9 +175,21 @@ ToDo:
 
 	function addToRoute(id, name) {
 		console.log(`addToRoute(${id}, ${name})`);
-    	const elem = document.createElement("ul");
+    	const elem = document.createElement("li");
+		elem.classList = "orderable"
+		elem.dragable = true;
 		elem.dataset.featureId = id;
-		elem.textContent = name || id;
+		const drag = document.createElement('i');
+		drag.clasList = 'icon icon-16 icon-drag';
+		drag.title = 'Drag to reorder';
+		const del = document.createElement('button');
+		del.classList = "icon icon-16 icon-delete show-on-edit "
+		del.title = "Delete waypoint";
+		del.addEventListener('click', e => del.parentNode.remove());
+		elem.appendChild(del);
+		const span = document.createElement('span');
+		span.textContent = name || id;
+		elem.appendChild(span);
 		const hr = document.getElementById('routePoints');
 		hr.appendChild(elem);
 		document.getElementById('addRouteButton').disabled = (
