@@ -56,6 +56,21 @@ ToDo:
 		});
 	}
 
+	// https://stackoverflow.com/questions/31798816/simple-mutationobserver-version-of-domnoderemovedfromdocument
+	function onRemove(element, onDetachCallback) {
+		const observer = new MutationObserver(function () {
+			if (!document.contains(element)) {
+				observer.disconnect();
+				onDetachCallback();
+			}
+		})
+
+		observer.observe(document, {
+			 childList: true,
+			 subtree: true
+		});
+	}
+
 
 
     function addRoutingModal() {
@@ -241,6 +256,21 @@ ToDo:
 		});
 	}
 
+	function addRoutingForm() {
+		console.log('addRoutingForm()');
+	}
+
+
+	function checkEditPolygonModal() {
+		console.log('checkEditPolygonModal()');
+		waitForElm('.umap-feature-container .icon-polyline').then(elem => {
+			if (U.MAP._editedFeature.properties['feature-ids']) {
+				addRoutingForm();
+			}
+			onRemove(elem, checkEditPolygonModal);
+		});
+	}
+
     function onClick(e) {
         if (!document.getElementById('routingModal')) { return; }
         //console.log(e);
@@ -253,5 +283,6 @@ ToDo:
     console.log('uMap Routing');
     addRoutingIcon();
     document.addEventListener('click', onClick);
-
+	checkEditPolygonModal();
+	
 })();
