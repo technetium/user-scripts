@@ -10,7 +10,7 @@
 
 /*
 
-This script adds option to add routing to umap
+This script adds option to add routing to uMap
 intended as a proof of concept to resolve 
 https://github.com/umap-project/umap/issues/297
 
@@ -20,7 +20,7 @@ Clicking on it will open a modal where the route can be defined.
 The route is defined by clicking on the points that will be part of the route
 Routing is done via GraphHopper, a GraphHopper api key must also be entered.
 The api key is stored in localStorage, saving it for future use.
-ToDo: Create input options for other GraphHopper parameters
+ToDo: Create more input options for other GraphHopper parameters
 
 When GraphHopper has calculated the route, it's imported via manipulation
 of the import modal, not an elegant solution, but it works. 
@@ -70,24 +70,33 @@ ToDo:
                 <li class=""><button class="icon icon-16 icon-resize" title="Toggle size"></button></li>
             </ul>
             <div class="body"><div><form data-ref="form">
-                <h3><i class="icon icon-24 icon-template"></i>Add points to route</h3>
-                <p>Explanation.</p>
-                <div class="formbox">
-                    <div data-ref="body" class="body">
-						API Key: <input name="graphHopperApiKey" id="graphHopperApiKey" />
-						<br />
-						Routing Type: <select name id="graphHopperProfile" name="graphHopperProfile">
-							<option value="car">Car</option>
-							<option value="bike">Bike</option>
-							<option value="foot">Foot</option>
-						</select>
-						<ul id="routePoints">
-						</ul>
-                    </div>
-                    <div class="button-bar half">
-                        <button type="button" class="primary" data-ref="confirm" id="addRouteButton" disabled="disabled">Add Route</button>
-                    </div>
+                <h3><i class="icon icon-24 icon-clone"></i>Add points to route</h3>
+                <p>Explanation. Bla Bla.</p>
+		
+				<div class="formbox umap-field-graph-hopper-api-key" data-ref="container">
+					<label title="apikey" data-ref="label" data-help="">API Key</label>
+					<input type="text" placeholder="" name="graphHopperApiKey" id="graphHopperApiKey" data-ref="input" />
+					<!-- <small class="help-text" data-ref="helpText" hidden=""></small> -->
+				</div>
+					
+				<div class="formbox umap-field-profile" data-ref="container">
+					<label title="Routing profile" data-ref="label" data-help="">Routing profile</label>
+					<select name id="graphHopperProfile" name="graphHopperProfile">
+						<option value="car">Car</option>
+						<option value="bike">Bike</option>
+						<option value="foot">Foot</option>
+					</select>
+					<small class="help-text" data-ref="helpText" hidden=""></small>
+				</div>			
+				
+				<div class="formbox umap-field-type" data-ref="container">
+					<label title="Route points" data-ref="label" data-help="">Route points</label>
+					<ul id="routePoints">
+					</ul>
                 </div>
+				<div class="button-bar half">
+					<button type="button" class="primary" data-ref="confirm" id="addRouteButton" disabled="disabled">Add Route</button>
+				</div>
             </form></div></div>
         `;
 
