@@ -71,19 +71,8 @@ ToDo:
 		});
 	}
 
-
-
-    function addRoutingModal() {
-        console.log('addRoutingModal');
-        const elem = document.createElement("div");
-        elem.id = 'routingModal';
-        elem.className = 'with-transition panel window right dark on';
-        elem.dataset.highlight = 'route';
-        elem.innerHTML = `
-            <ul class="buttons">
-                <li class=""><button class="icon icon-16 icon-close" title="Close" id="routingModalClose"></button></li>
-                <li class=""><button class="icon icon-16 icon-resize" title="Toggle size"></button></li>
-            </ul>
+	function routingHtml() {
+		return `
             <div class="body"><div><form data-ref="form">
                 <h3><i class="icon icon-24 icon-clone"></i>Add points to route</h3>
                 <p>Explanation. Bla Bla.</p>
@@ -113,25 +102,28 @@ ToDo:
 					<button type="button" class="primary" data-ref="confirm" id="addRouteButton" disabled="disabled">Add Route</button>
 				</div>
             </form></div></div>
-        `;
+		`;
+	}
+	
 
-        const hr = document.querySelector('.umap-main-edit-toolbox');
-        console.log(hr)
-        hr.parentNode.insertBefore(elem, hr);
+    function addRoutingModal() {
+        console.log('addRoutingModal');
+		const panel = document.querySelector('.panel.right.dark');
+		if (!panel) {
+			console.warn('First create the panel, edit a feature is the work around');
+			return;
+		}
+		
+		panel.querySelector('.body').innerHTML = routingHtml();
 		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
 		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
-        document.getElementById('routingModalClose').addEventListener('click', removeRoutingModal);
-		document.getElementById('addRouteButton').addEventListener('click', addRoute);
-    }
-
-    function removeRoutingModal() {
-        console.log('removeRoutingModal');
-        document.getElementById('routingModal').remove();
+        document.getElementById('addRouteButton').addEventListener('click', addRoute);
+		panel.classList.add('on');
     }
 
     function showRoutingModal() {
         console.log('showRoutingModal');
-        if (!document.getElementById('routingModal')) {
+        if (!document.getElementById('routingList')) {
           addRoutingModal();
         }
     }
@@ -246,7 +238,7 @@ ToDo:
 					.from(document.getElementById('routePoints').children)
 					.map(elem => nameFromId(elem.dataset.featureId) || elem.dataset.featureId)
 					.join(' - ')
-				removeRoutingModal();
+				document.querySelector('.panel').classList.remove('on');
 				const distance =  new Intl.NumberFormat("en-EN", { style: "unit", unit: "kilometer",}).format(json.paths[0].distance / 1000);
 				const duration = new Date(json.paths[0].time).toISOString().substr(11, 8);
 				importData({
@@ -292,7 +284,7 @@ ToDo:
 	}
 
     function onClick(e) {
-        if (!document.getElementById('routingModal')) { return; }
+        if (!document.getElementById('routePoints')) { return; }
         //console.log(e);
         const id = idFromElement(e.target);
 		if (id) {
