@@ -105,6 +105,14 @@ ToDo:
 		`;
 	}
 	
+	function fillRouteForm(ids='') {
+		console.log(`fillRouteForm(ids)`)
+		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
+		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
+        document.getElementById('addRouteButton').addEventListener('click', addRoute);
+		ids.split(',').forEach(id => addToRoute(id));
+		// ToDo: Handle recalculation of the route
+	}
 
     function addRoutingModal() {
         console.log('addRoutingModal');
@@ -115,9 +123,6 @@ ToDo:
 		}
 		
 		panel.querySelector('.body').innerHTML = routingHtml();
-		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
-		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
-        document.getElementById('addRouteButton').addEventListener('click', addRoute);
 		panel.classList.add('on');
     }
 
@@ -191,13 +196,6 @@ ToDo:
 		);
 	}
 	
-	
-	/*
-	<li class="orderable show_with_datalayer_92" data-id="b96f0995-f288-4d0c-9362-10a7e1816881" draggable="true">
-	
-	<i class="icon icon-16 icon-drag" title="Drag to reorder"></i><button class="icon icon-16 icon-eye" title="Show/hide layer"></button><button class="icon icon-16 icon-zoom" title="Zoom to layer extent"></button><button class="icon icon-16 icon-edit show-on-edit" title="Edit"></button><button class="icon icon-16 icon-table show-on-edit" title="Edit properties in a table"></button><button class="icon icon-16 icon-delete show-on-edit" title="Delete layer"></button><form class="umap-form-inline"><span class="" data-ref="input">Default</span></form></li>
-	*/
-
 	function addRoute() {
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
@@ -270,6 +268,8 @@ ToDo:
 
 	function addRoutingForm() {
 		console.log('addRoutingForm()');
+		document.querySelector('.umap-field-feature-ids').innerHTML = routingHtml();
+		fillRouteForm(U.MAP._editedFeature.properties['feature-ids']);
 	}
 
 
