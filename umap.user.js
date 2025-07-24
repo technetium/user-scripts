@@ -173,22 +173,23 @@ ToDo:
         }
 	}
 
-	function addToRoute(id, name) {
-		console.log(`addToRoute(${id}, ${name})`);
+	function addToRoute(id) {
+		console.log(`addToRoute(${id}`);
     	const elem = document.createElement("li");
 		elem.classList = "orderable"
-		elem.dragable = true;
+		elem.setAttribute('dragable', 'true');
 		elem.dataset.featureId = id;
 		const drag = document.createElement('i');
-		drag.clasList = 'icon icon-16 icon-drag';
+		drag.classList = 'icon icon-16 icon-drag';
 		drag.title = 'Drag to reorder';
+		elem.appendChild(drag);
 		const del = document.createElement('button');
 		del.classList = "icon icon-16 icon-delete show-on-edit "
 		del.title = "Delete waypoint";
 		del.addEventListener('click', e => del.parentNode.remove());
 		elem.appendChild(del);
 		const span = document.createElement('span');
-		span.textContent = name || id;
+		span.textContent = nameFromId(id) || id;
 		elem.appendChild(span);
 		const hr = document.getElementById('routePoints');
 		hr.appendChild(elem);
@@ -197,6 +198,13 @@ ToDo:
 			(hr.childElementCount < 2)
 		);
 	}
+	
+	
+	/*
+	<li class="orderable show_with_datalayer_92" data-id="b96f0995-f288-4d0c-9362-10a7e1816881" draggable="true">
+	
+	<i class="icon icon-16 icon-drag" title="Drag to reorder"></i><button class="icon icon-16 icon-eye" title="Show/hide layer"></button><button class="icon icon-16 icon-zoom" title="Zoom to layer extent"></button><button class="icon icon-16 icon-edit show-on-edit" title="Edit"></button><button class="icon icon-16 icon-table show-on-edit" title="Edit properties in a table"></button><button class="icon icon-16 icon-delete show-on-edit" title="Delete layer"></button><form class="umap-form-inline"><span class="" data-ref="input">Default</span></form></li>
+	*/
 
 	function addRoute() {
 		console.log('AddRoute()');
@@ -288,7 +296,7 @@ ToDo:
         //console.log(e);
         const id = idFromElement(e.target);
 		if (id) {
-			addToRoute(id, nameFromId(id));
+			addToRoute(id);
 		}
     }
 
@@ -296,5 +304,5 @@ ToDo:
     addRoutingIcon();
     document.addEventListener('click', onClick);
 	checkEditPolygonModal();
-	
+
 })();
