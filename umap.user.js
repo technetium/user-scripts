@@ -110,7 +110,7 @@ ToDo:
 		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
 		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
         document.getElementById('addRouteButton').addEventListener('click', addRoute);
-		ids.split(',').forEach(id => addToRoute(id));
+		if (ids) { ids.split(',').forEach(id => addToRoute(id)); }
 		// ToDo: Handle recalculation of the route
 	}
 
@@ -123,6 +123,7 @@ ToDo:
 		}
 		
 		panel.querySelector('.body').innerHTML = routingHtml();
+		fillRouteForm();
 		panel.classList.add('on');
     }
 
