@@ -259,6 +259,24 @@ ToDo:
 		;
 	}
 
+	/*
+	// data/layer.js
+	async importRaw(raw, format) {
+    return this._umap.formatter
+      .parse(raw, format)
+      .then((geojson) => {
+        this.sync.startBatch()
+        const data = this.addData(geojson)
+        this.sync.commitBatch()
+        return data
+      })
+      .catch((error) => {
+        console.debug(error)
+        Alert.error(translate('Import failed: invalid data'))
+      })
+	}
+	
+	*/
 	function importData(geojson) {
 		document.querySelector('li[data-ref="import"] button').click();
 		waitForElm('.umap-import textarea').then((elm) => {
