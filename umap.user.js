@@ -116,10 +116,14 @@ ToDo:
 
     function addRoutingModal() {
         console.log('addRoutingModal');
-		const panel = document.querySelector('.panel.right.dark');
+		let panel = document.querySelector('.panel.right.dark');
 		if (!panel) {
-			console.warn('First create the panel, edit a feature is the work around');
-			return;
+			console.log('Panel not found: Create it.');
+			const elem = document.createElement("div");
+
+			U.MAP.editPanel.open({content: elem});
+			console.log('openend');
+		panel = document.querySelector('.panel.right.dark');
 		}
 		
 		panel.querySelector('.body').innerHTML = routingHtml();
@@ -271,6 +275,7 @@ ToDo:
 		console.log('addRoutingForm()');
 		document.querySelector('.umap-field-feature-ids').innerHTML = routingHtml();
 		fillRouteForm(U.MAP._editedFeature.properties['feature-ids']);
+		document.querySelector('[data-feature="'+U.MAP._editedFeature.id+'"]'); 
 	}
 
 
@@ -278,6 +283,7 @@ ToDo:
 		console.log('checkEditPolygonModal()');
 		waitForElm('.umap-feature-container .icon-polyline').then(elem => {
 			if (U.MAP._editedFeature.properties['feature-ids']) {
+				
 				addRoutingForm();
 			}
 			onRemove(elem, checkEditPolygonModal);
