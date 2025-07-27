@@ -259,34 +259,12 @@ ToDo:
 		;
 	}
 
-	/*
-	// data/layer.js
-	async importRaw(raw, format) {
-    return this._umap.formatter
-      .parse(raw, format)
-      .then((geojson) => {
-        this.sync.startBatch()
-        const data = this.addData(geojson)
-        this.sync.commitBatch()
-        return data
-      })
-      .catch((error) => {
-        console.debug(error)
-        Alert.error(translate('Import failed: invalid data'))
-      })
-	}
-	
-	*/
 	function importData(geojson) {
-		document.querySelector('li[data-ref="import"] button').click();
-		waitForElm('.umap-import textarea').then((elm) => {
-			document.querySelector('.umap-import textarea').value = JSON.stringify(geojson)
-			document.querySelector('.umap-import select[name="format"]').value = 'geojson';
-			document.querySelector('.umap-import select[name="layer-id"]').value = document.querySelector('.umap-import select[name="layer-id"] option').value;
-			document.querySelector('.umap-import input.button').disabled=false;
-			document.querySelector('.umap-import input.button').click();
-			document.querySelector('div[data-highlight="import"] button[title="Close"]').click();
-		});
+		const layer = Object.values(U.MAP.datalayers)[0];
+		layer.sync.startBatch();
+		const data = layer.addData(geojson);
+		layer.sync.commitBatch();
+		return data;
 	}
 
 	function addRoutingForm() {
