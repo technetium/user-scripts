@@ -199,6 +199,8 @@ ToDo:
 			(!document.getElementById("graphHopperApiKey").value) ||
 			(hr.childElementCount < 2)
 		);
+		// Have to include the orderable module somehow
+		// const orderable = new Orderable(ul, onReorder);
 	}
 	
 	function addRoute() {
