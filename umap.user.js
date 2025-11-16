@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         uMap Routing
 // @namespace    http://umaprouting.technetium.be
-// @version      v0.0.2
+// @version      v0.0.3
 // @description  Add routing to uMap
 // @author       Toni Cornelissen
 // @match        https://umap.openstreetmap.fr/*
@@ -83,6 +83,17 @@ ToDo:
 					<!-- <small class="help-text" data-ref="helpText" hidden=""></small> -->
 				</div>
 					
+				<div class="formbox umap-field-datalayer" data-ref="container">
+					<div class="select-with-actions">
+						<select name="datalayer" id="routeDataLayer" data-ref="select"></select>
+						<button type="button" class="icon icon-16 icon-edit flat" data-ref="openEditPanel"></button>
+						<button type="button" class="icon icon-16 icon-table flat" data-ref="openTableEditor"></button>
+					</div>
+					<small class="help-text" data-ref="helpText" hidden=""></small>
+				</div>
+
+				</div>		
+					
 				<div class="formbox umap-field-profile" data-ref="container">
 					<label title="Routing profile" data-ref="label" data-help="">Routing profile</label>
 					<select name id="graphHopperProfile" name="graphHopperProfile">
@@ -105,11 +116,28 @@ ToDo:
 		`;
 	}
 	
+	function fillRouteFormDataLayer() {
+		const options = [];
+		for (let key in U.MAP.datalayers) {
+			const option = document.createElement('option');
+			option.value = key;
+			option.text = U.MAP.datalayers[key].properties.name;
+			options[Object.keys(U.MAP.datalayers).length - U.MAP.datalayers[key].properties.rank - 1] = option;
+		}
+		console.log(options);
+		const select = document.getElementById('routeDataLayer');
+		options.forEach(option => select.appendChild(option));
+			
+			
+
+	}
+	
 	function fillRouteForm(ids='') {
 		console.log(`fillRouteForm(ids)`)
 		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
 		document.getElementById('graphHopperProfile').value = localStorage.getItem('graphHopperProfile');
         document.getElementById('addRouteButton').addEventListener('click', addRoute);
+		fillRouteFormDataLayer();
 		if (ids) { ids.split(',').forEach(id => addToRoute(id)); }
 		// ToDo: Handle recalculation of the route
 	}
@@ -207,6 +235,7 @@ ToDo:
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
+		const dataLayer = document.getElementById('routeDataLayer').value;
 		localStorage.setItem('graphHopperApiKey', apiKey);
 		localStorage.setItem('graphHopperProfile', profile);
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
@@ -235,6 +264,7 @@ ToDo:
 		)
 			.then(res => res.json())
 			.then(json => {
+				console.log(json);
 				const ids = Array
 					.from(document.getElementById('routePoints').children)
 					.map(elem => elem.dataset.featureId)
@@ -255,14 +285,16 @@ ToDo:
                         "feature-ids": ids,
 						"profile": profile,
 					}
-				});
+				}, dataLayer);
 			})
 			.catch(error => console.error(error))
 		;
 	}
 
-	function importData(geojson) {
-		const layer = Object.values(U.MAP.datalayers)[0];
+	function importData(geojson, dataLayer = null) {
+		console.log(`importData(geojson, $dataLayer)`);
+		const layer = dataLayer ? U.MAP.datalayers[dataLayer] : Object.values(U.MAP.datalayers)[0];
+		console.log(layer.properties.name);
 		layer.sync.startBatch();
 		const data = layer.addData(geojson);
 		layer.sync.commitBatch();
