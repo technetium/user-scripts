@@ -124,9 +124,12 @@ ToDo:
 			option.text = U.MAP.datalayers[key].properties.name;
 			options[Object.keys(U.MAP.datalayers).length - U.MAP.datalayers[key].properties.rank - 1] = option;
 		}
-		console.log(options);
 		const select = document.getElementById('routeDataLayer');
 		options.forEach(option => select.appendChild(option));
+		
+		if (U.MAP._editedFeature) {
+			select.value = dataLayerKeyFromId(U.MAP._editedFeature.id);
+		}
 	}
 	
 	function fillRouteForm(ids='') {
@@ -136,6 +139,9 @@ ToDo:
         document.getElementById('addRouteButton').addEventListener('click', addRoute);
 		fillRouteFormDataLayer();
 		if (ids) { ids.split(',').forEach(id => addToRoute(id)); }
+		
+		
+		
 		// ToDo: Handle recalculation of the route
 	}
 
@@ -200,6 +206,14 @@ ToDo:
         }
 	}
 
+	function dataLayerKeyFromId(id) {
+	    for (let key in U.MAP.datalayers) {
+            if (U.MAP.datalayers[key].features.has(id)) {
+                return key;
+            }
+        }
+	}
+
 	function nameFromId(id) {
 	    for (let key in U.MAP.datalayers) {
             if (U.MAP.datalayers[key].features.has(id)) {
@@ -238,7 +252,6 @@ ToDo:
 	
 	function addRoute() {
 		console.log('AddRoute()');
-		console.log(U.MAP._editedFeature);
 		if (U.MAP._editedFeature) {
 			dataLayerFromId(U.MAP._editedFeature.id).removeFeature(U.MAP._editedFeature);
 		}
@@ -260,8 +273,7 @@ ToDo:
 			profile: profile,
 		}
 		console.log(data);
-		console.log(JSON.stringify(data));
-
+	
 		window.fetch(
 			url,
 			{
@@ -273,7 +285,6 @@ ToDo:
 		)
 			.then(res => res.json())
 			.then(json => {
-				console.log(json);
 				const ids = Array
 					.from(document.getElementById('routePoints').children)
 					.map(elem => elem.dataset.featureId)
@@ -303,7 +314,6 @@ ToDo:
 	function importData(geojson, dataLayer = null) {
 		console.log(`importData(geojson, $dataLayer)`);
 		const layer = dataLayer ? U.MAP.datalayers[dataLayer] : Object.values(U.MAP.datalayers)[0];
-		console.log(layer.properties.name);
 		layer.sync.startBatch();
 		const data = layer.addData(geojson);
 		layer.sync.commitBatch();
