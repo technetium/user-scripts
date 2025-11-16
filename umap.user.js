@@ -127,9 +127,6 @@ ToDo:
 		console.log(options);
 		const select = document.getElementById('routeDataLayer');
 		options.forEach(option => select.appendChild(option));
-			
-			
-
 	}
 	
 	function fillRouteForm(ids='') {
@@ -195,6 +192,14 @@ ToDo:
         }
 	}
 
+	function dataLayerFromId(id) {
+	    for (let key in U.MAP.datalayers) {
+            if (U.MAP.datalayers[key].features.has(id)) {
+                return U.MAP.datalayers[key];
+            }
+        }
+	}
+
 	function nameFromId(id) {
 	    for (let key in U.MAP.datalayers) {
             if (U.MAP.datalayers[key].features.has(id)) {
@@ -233,6 +238,10 @@ ToDo:
 	
 	function addRoute() {
 		console.log('AddRoute()');
+		console.log(U.MAP._editedFeature);
+		if (U.MAP._editedFeature) {
+			dataLayerFromId(U.MAP._editedFeature.id).removeFeature(U.MAP._editedFeature);
+		}
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
 		const dataLayer = document.getElementById('routeDataLayer').value;
@@ -313,7 +322,6 @@ ToDo:
 		console.log('checkEditPolygonModal()');
 		waitForElm('.umap-feature-container .icon-polyline').then(elem => {
 			if (U.MAP._editedFeature.properties['feature-ids']) {
-				
 				addRoutingForm();
 			}
 			onRemove(elem, checkEditPolygonModal);
