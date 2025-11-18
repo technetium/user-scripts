@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         uMap Routing
 // @namespace    http://umaprouting.technetium.be
-// @version      v0.0.3
+// @version      v0.0.4
 // @description  Add routing to uMap
 // @author       Toni Cornelissen
 // @match        https://umap.openstreetmap.fr/*
@@ -22,11 +22,9 @@ Routing is done via GraphHopper, a GraphHopper api key must also be entered.
 The api key is stored in localStorage, saving it for future use.
 ToDo: Create more input options for other GraphHopper parameters
 
-When GraphHopper has calculated the route, it's imported via manipulation
-of the import modal, not an elegant solution, but it works. 
-
 ToDo:
-	- When a route is added, make it possible to edit the points (delete, add, reorder) and recalculate the route.
+	- When a route is added, make it possible to edit the points (delete, add, reorder) and recalculate the route. Deleting and adding is possible. Reorder is something I need to look into
+	
 
 */
 
@@ -139,9 +137,6 @@ ToDo:
         document.getElementById('addRouteButton').addEventListener('click', addRoute);
 		fillRouteFormDataLayer();
 		if (ids) { ids.split(',').forEach(id => addToRoute(id)); }
-		
-		
-		
 		// ToDo: Handle recalculation of the route
 	}
 
@@ -252,9 +247,6 @@ ToDo:
 	
 	function addRoute() {
 		console.log('AddRoute()');
-		if (U.MAP._editedFeature) {
-			dataLayerFromId(U.MAP._editedFeature.id).removeFeature(U.MAP._editedFeature);
-		}
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
 		const dataLayer = document.getElementById('routeDataLayer').value;
@@ -279,23 +271,32 @@ ToDo:
 			{
 				body: JSON.stringify(data),
 				headers: headers,
-				method: 'POST',
-                mode: 'cors',
+				method: "POST",
+                mode: "cors",
 			}
 		)
 			.then(res => res.json())
 			.then(json => {
 				const ids = Array
-					.from(document.getElementById('routePoints').children)
+					.from(document.getElementById("routePoints").children)
 					.map(elem => elem.dataset.featureId)
-					.join(',')
+					.join(",");
 				const name = Array
-					.from(document.getElementById('routePoints').children)
+					.from(document.getElementById("routePoints").children)
 					.map(elem => nameFromId(elem.dataset.featureId) || elem.dataset.featureId)
-					.join(' - ')
-				document.querySelector('.panel').classList.remove('on');
+					.join(" - ");
+				document.querySelector(".panel").classList.remove("on");
 				const distance =  new Intl.NumberFormat("en-EN", { style: "unit", unit: "kilometer",}).format(json.paths[0].distance / 1000);
 				const duration = new Date(json.paths[0].time).toISOString().substr(11, 8);
+
+				let _umap_options = {}
+
+				if (U.MAP._editedFeature) {
+					console.warn(U.MAP._editedFeature.properties);
+					_umap_options = U.MAP._editedFeature.properties._umap_options;
+					dataLayerFromId(U.MAP._editedFeature.id).removeFeature(U.MAP._editedFeature);
+				}
+
 				importData({
 					"type": "Feature",
 					"geometry": json.paths[0].points,
@@ -304,7 +305,8 @@ ToDo:
 						"description": `Distance: ${distance}\nDuration: ${duration}`,
                         "feature-ids": ids,
 						"profile": profile,
-					}
+						"_umap_options": _umap_options,
+					},
 				}, dataLayer);
 			})
 			.catch(error => console.error(error))
