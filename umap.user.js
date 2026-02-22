@@ -116,12 +116,15 @@ ToDo:
 	
 	function fillRouteFormDataLayer() {
 		const options = [];
-		for (let key in U.MAP.datalayers) {
+		Object.keys(U.MAP.datalayers).forEach(key => {
 			const option = document.createElement('option');
 			option.value = key;
 			option.text = U.MAP.datalayers[key].properties.name;
-			options[Object.keys(U.MAP.datalayers).length - U.MAP.datalayers[key].properties.rank - 1] = option;
-		}
+			option.rank = U.MAP.datalayers[key].properties.rank;
+			options.push(option)
+		});
+		options.sort((a, b) => b.rank - a.rank); // For some reason, rank is in reverse order
+		
 		const select = document.getElementById('routeDataLayer');
 		options.forEach(option => select.appendChild(option));
 		
@@ -143,13 +146,13 @@ ToDo:
     function addRoutingModal() {
         console.log('addRoutingModal');
 		let panel = document.querySelector('.panel.right.dark');
-		if (!panel) {
+		if (!panel || !panel.querySelector('.body')) {
 			console.log('Panel not found: Create it.');
 			const elem = document.createElement("div");
 
 			U.MAP.editPanel.open({content: elem});
 			console.log('openend');
-		panel = document.querySelector('.panel.right.dark');
+			panel = document.querySelector('.panel.right.dark');
 		}
 		
 		panel.querySelector('.body').innerHTML = routingHtml();
@@ -171,8 +174,8 @@ ToDo:
         elem.innerHTML = '<button type="button" data-getstarted="" title="Draw a route (Ctrl+R)"><i class="icon icon-24 icon-clone"></i></button>';
         elem.addEventListener('click', showRoutingModal);
         //elem.addEventListener('click', importData);
-		waitForElm('.umap-edit-bar hr').then((hr) => {
-			hr.parentNode.insertBefore(elem, hr);
+		waitForElm('.umap-edit-bar ul').then((ul) => {
+			ul.append(elem);
 		});
     }
 
