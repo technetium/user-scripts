@@ -116,11 +116,12 @@ ToDo:
 	
 	function fillRouteFormDataLayer() {
 		const options = [];
-		Object.keys(U.MAP.datalayers).forEach(key => {
+		Object.keys(U.MAP.layers.tree._items).forEach(key => {
+			console.warn(key);
 			const option = document.createElement('option');
-			option.value = key;
-			option.text = U.MAP.datalayers[key].properties.name;
-			option.rank = U.MAP.datalayers[key].properties.rank;
+			option.value = U.MAP.layers.tree._items[key]._id;
+			option.text = U.MAP.layers.tree._items[key].name;
+			option.rank = U.MAP.layers.tree._items[key].rank;
 			options.push(option)
 		});
 		options.sort((a, b) => b.rank - a.rank); // For some reason, rank is in reverse order
@@ -189,39 +190,42 @@ ToDo:
 	}
 
 	function coordinatesFromId(id) {
-	    for (let key in U.MAP.datalayers) {
-            if (U.MAP.datalayers[key].features.has(id)) {
-                return U.MAP.datalayers[key].features.get(id).geometry.coordinates;
+		console.warn(`coordinatesFromId($id)`)
+	    for (let key in U.MAP.layers.tree._items) {
+            if (U.MAP.layers.tree._items[key].features.has(id)) {
+                return U.MAP.layers.tree._items[key].features.get(id)._geometry.coordinates;
             }
         }
 	}
 
 	function dataLayerFromId(id) {
-	    for (let key in U.MAP.datalayers) {
-            if (U.MAP.datalayers[key].features.has(id)) {
-                return U.MAP.datalayers[key];
+		console.warn(`dataLayerFromId($id)`)
+	    for (let key in U.MAP.layers.tree._items) {
+            if (U.MAP.layers.tree._items[key]._id === id) {
+                return U.MAP.layers.tree._items[key];
             }
         }
 	}
 
 	function dataLayerKeyFromId(id) {
-	    for (let key in U.MAP.datalayers) {
-            if (U.MAP.datalayers[key].features.has(id)) {
+	    for (let key in U.MAP.layers) {
+            if (U.MAP.layers[key].features.has(id)) {
                 return key;
             }
         }
 	}
 
 	function nameFromId(id) {
-	    for (let key in U.MAP.datalayers) {
-            if (U.MAP.datalayers[key].features.has(id)) {
-                return U.MAP.datalayers[key].features.get(id).properties.name;
+		console.warn(`nameFromId(${id})`)
+	    for (let key in U.MAP.layers.tree._items) {
+            if (U.MAP.layers.tree._items[key].features.has(id)) {
+                return U.MAP.layers.tree._items[key].features.get(id).properties.name;
             }
         }
 	}
 
 	function addToRoute(id) {
-		console.log(`addToRoute(${id}`);
+		console.log(`addToRoute(${id})`);
     	const elem = document.createElement("li");
 		elem.classList = "orderable"
 		elem.setAttribute('dragable', 'true');
@@ -252,7 +256,7 @@ ToDo:
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
-		const dataLayer = document.getElementById('routeDataLayer').value;
+		const dataLayerId = document.getElementById('routeDataLayer').value;
 		localStorage.setItem('graphHopperApiKey', apiKey);
 		localStorage.setItem('graphHopperProfile', profile);
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
@@ -310,15 +314,15 @@ ToDo:
 						"profile": profile,
 						"_umap_options": _umap_options,
 					},
-				}, dataLayer);
+				}, dataLayerId);
 			})
 			.catch(error => console.error(error))
 		;
 	}
 
-	function importData(geojson, dataLayer = null) {
+	function importData(geojson, dataLayerId = null) {
 		console.log(`importData(geojson, $dataLayer)`);
-		const layer = dataLayer ? U.MAP.datalayers[dataLayer] : Object.values(U.MAP.datalayers)[0];
+		const layer = dataLayerId ? dataLayerFromId(dataLayerId) : U.MAP.layers.tree._items[0];
 		layer.sync.startBatch();
 		const data = layer.addData(geojson);
 		layer.sync.commitBatch();
