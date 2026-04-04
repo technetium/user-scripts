@@ -299,7 +299,7 @@ ToDo:
 				
 				if (U.MAP._editedFeature) {
 					properties = U.MAP._editedFeature.properties;
-					dataLayerFromId(U.MAP._editedFeature.id).features.delete(U.MAP._editedFeature);
+					dataLayerFromId(U.MAP._editedFeature.id).features.get(U.MAP._editedFeature.id).del();
 				}
 
 				Object.assign(
