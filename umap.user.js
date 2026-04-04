@@ -117,7 +117,6 @@ ToDo:
 	function fillRouteFormDataLayer() {
 		const options = [];
 		Object.keys(U.MAP.layers.tree._items).forEach(key => {
-			console.warn(key);
 			const option = document.createElement('option');
 			option.value = U.MAP.layers.tree._items[key]._id;
 			option.text = U.MAP.layers.tree._items[key].name;
@@ -190,8 +189,7 @@ ToDo:
 	}
 
 	function coordinatesFromId(id) {
-		console.warn(`coordinatesFromId($id)`)
-	    for (let key in U.MAP.layers.tree._items) {
+		for (let key in U.MAP.layers.tree._items) {
             if (U.MAP.layers.tree._items[key].features.has(id)) {
                 return U.MAP.layers.tree._items[key].features.get(id)._geometry.coordinates;
             }
@@ -199,25 +197,26 @@ ToDo:
 	}
 
 	function dataLayerFromId(id) {
-		console.warn(`dataLayerFromId($id)`)
 	    for (let key in U.MAP.layers.tree._items) {
-            if (U.MAP.layers.tree._items[key]._id === id) {
+            if (
+				(U.MAP.layers.tree._items[key]._id === id) ||	// layer id
+				U.MAP.layers.tree._items[key].features.has(id)	// feature id
+			) {
                 return U.MAP.layers.tree._items[key];
             }
         }
 	}
 
 	function dataLayerKeyFromId(id) {
-	    for (let key in U.MAP.layers) {
-            if (U.MAP.layers[key].features.has(id)) {
+	    for (let key in U.MAP.layers.tree._items) {
+            if (U.MAP.layers.tree._items[key].features.has(id)) {
                 return key;
             }
         }
 	}
 
 	function nameFromId(id) {
-		console.warn(`nameFromId(${id})`)
-	    for (let key in U.MAP.layers.tree._items) {
+		for (let key in U.MAP.layers.tree._items) {
             if (U.MAP.layers.tree._items[key].features.has(id)) {
                 return U.MAP.layers.tree._items[key].features.get(id).properties.name;
             }
@@ -256,7 +255,7 @@ ToDo:
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
-		const dataLayerId = document.getElementById('routeDataLayer').value;
+		const dataLayerId = document.getElementsByName('datalayer')[0].value;
 		localStorage.setItem('graphHopperApiKey', apiKey);
 		localStorage.setItem('graphHopperProfile', profile);
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
@@ -296,24 +295,26 @@ ToDo:
 				const distance =  new Intl.NumberFormat("en-EN", { style: "unit", unit: "kilometer",}).format(json.paths[0].distance / 1000);
 				const duration = new Date(json.paths[0].time).toISOString().substr(11, 8);
 
-				let _umap_options = {}
-
+				let properties = {}
+				
 				if (U.MAP._editedFeature) {
-					console.warn(U.MAP._editedFeature.properties);
-					_umap_options = U.MAP._editedFeature.properties._umap_options;
-					dataLayerFromId(U.MAP._editedFeature.id).removeFeature(U.MAP._editedFeature);
+					properties = U.MAP._editedFeature.properties;
+					dataLayerFromId(U.MAP._editedFeature.id).features.delete(U.MAP._editedFeature);
 				}
+
+				Object.assign(
+					properties,
+					{
+						"name": name,
+						"description": `Distance: ${distance}\nDuration: ${duration}`,
+                        "feature-ids": ids,
+					}
+				);
 
 				importData({
 					"type": "Feature",
 					"geometry": json.paths[0].points,
-					"properties": {
-						"name": name,
-						"description": `Distance: ${distance}\nDuration: ${duration}`,
-                        "feature-ids": ids,
-						"profile": profile,
-						"_umap_options": _umap_options,
-					},
+					"properties": properties,
 				}, dataLayerId);
 			})
 			.catch(error => console.error(error))
@@ -321,7 +322,7 @@ ToDo:
 	}
 
 	function importData(geojson, dataLayerId = null) {
-		console.log(`importData(geojson, $dataLayer)`);
+		console.log(`importData(geojson, ${dataLayerId})`);
 		const layer = dataLayerId ? dataLayerFromId(dataLayerId) : U.MAP.layers.tree._items[0];
 		layer.sync.startBatch();
 		const data = layer.addData(geojson);
@@ -362,3 +363,4 @@ ToDo:
 	checkEditPolygonModal();
 
 })();
+
