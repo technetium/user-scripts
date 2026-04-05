@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         uMap Routing
 // @namespace    http://umaprouting.technetium.be
-// @version      v0.0.4
+// @version      v0.0.5
 // @description  Add routing to uMap
 // @author       Toni Cornelissen
 // @match        https://umap.openstreetmap.fr/*
@@ -116,11 +116,11 @@ ToDo:
 	
 	function fillRouteFormDataLayer() {
 		const options = [];
-		Object.keys(U.MAP.layers.tree._items).forEach(key => {
+		U.MAP.layers._children.forEach(layer => {
 			const option = document.createElement('option');
-			option.value = U.MAP.layers.tree._items[key]._id;
-			option.text = U.MAP.layers.tree._items[key].name;
-			option.rank = U.MAP.layers.tree._items[key].rank;
+			option.value = layer.id;
+			option.text = layer.name;
+			option.rank = layer.rank;
 			options.push(option)
 		});
 		options.sort((a, b) => b.rank - a.rank); // For some reason, rank is in reverse order
@@ -129,7 +129,7 @@ ToDo:
 		options.forEach(option => select.appendChild(option));
 		
 		if (U.MAP._editedFeature) {
-			select.value = dataLayerKeyFromId(U.MAP._editedFeature.id);
+			select.value = layerKeyFromId(U.MAP._editedFeature.id);
 		}
 	}
 	
@@ -189,38 +189,31 @@ ToDo:
 	}
 
 	function coordinatesFromId(id) {
-		for (let key in U.MAP.layers.tree._items) {
-            if (U.MAP.layers.tree._items[key].features.has(id)) {
-                return U.MAP.layers.tree._items[key].features.get(id)._geometry.coordinates;
-            }
-        }
+		return [...U.MAP.layers._children]
+			.filter((x)=> x[1].features.has(id))[0][1]
+			.features.get(id)
+			._geometry.coordinates
+		;
 	}
 
-	function dataLayerFromId(id) {
-	    for (let key in U.MAP.layers.tree._items) {
-            if (
-				(U.MAP.layers.tree._items[key]._id === id) ||	// layer id
-				U.MAP.layers.tree._items[key].features.has(id)	// feature id
-			) {
-                return U.MAP.layers.tree._items[key];
-            }
-        }
+	function layerFromId(id) {
+		return [...U.MAP.layers._children]
+			.filter((x)=> x[1].features.has(id))[0][1]
+		;
 	}
 
-	function dataLayerKeyFromId(id) {
-	    for (let key in U.MAP.layers.tree._items) {
-            if (U.MAP.layers.tree._items[key].features.has(id)) {
-                return key;
-            }
-        }
+	function layerKeyFromId(id) {
+		return [...U.MAP.layers._children]
+			.filter((x)=> x[1].features.has(id))[0][0]
+		;
 	}
 
 	function nameFromId(id) {
-		for (let key in U.MAP.layers.tree._items) {
-            if (U.MAP.layers.tree._items[key].features.has(id)) {
-                return U.MAP.layers.tree._items[key].features.get(id).properties.name;
-            }
-        }
+		return [...U.MAP.layers._children]
+			.filter((x)=> x[1].features.has(id))[0][1]
+			.features.get(id)
+			.properties.name
+		;
 	}
 
 	function addToRoute(id) {
@@ -255,7 +248,7 @@ ToDo:
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
 		const profile = document.getElementById('graphHopperProfile').value;
-		const dataLayerId = document.getElementsByName('datalayer')[0].value;
+		const layer_id = document.getElementsByName('datalayer')[0].value;
 		localStorage.setItem('graphHopperApiKey', apiKey);
 		localStorage.setItem('graphHopperProfile', profile);
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
@@ -299,7 +292,7 @@ ToDo:
 				
 				if (U.MAP._editedFeature) {
 					properties = U.MAP._editedFeature.properties;
-					dataLayerFromId(U.MAP._editedFeature.id).features.get(U.MAP._editedFeature.id).del();
+					layerFromId(U.MAP._editedFeature.id).features.get(U.MAP._editedFeature.id).del();
 				}
 
 				Object.assign(
@@ -315,15 +308,15 @@ ToDo:
 					"type": "Feature",
 					"geometry": json.paths[0].points,
 					"properties": properties,
-				}, dataLayerId);
+				}, layer_id);
 			})
 			.catch(error => console.error(error))
 		;
 	}
 
-	function importData(geojson, dataLayerId = null) {
-		console.log(`importData(geojson, ${dataLayerId})`);
-		const layer = dataLayerId ? dataLayerFromId(dataLayerId) : U.MAP.layers.tree._items[0];
+	function importData(geojson, layer_id = null) {
+		console.log(`importData(geojson, ${layer_id})`);
+		const layer = layer_id ? U.MAP.layers._children.get(layer_id) : U.MAP.layers._children.values().next().value;
 		layer.sync.startBatch();
 		const data = layer.addData(geojson);
 		layer.sync.commitBatch();
