@@ -11,7 +11,7 @@
 /*
 
 This script adds option to add routing to uMap
-intended as a proof of concept to resolve 
+intended as a proof of concept to resolve
 https://github.com/umap-project/umap/issues/297
 
 This is done by adding a route icon to the edit toolbar.
@@ -24,7 +24,7 @@ ToDo: Create more input options for other GraphHopper parameters
 
 ToDo:
 	- When a route is added, make it possible to edit the points (delete, add, reorder) and recalculate the route. Deleting and adding is possible. Reorder is something I need to look into
-	
+
 
 */
 
@@ -74,13 +74,13 @@ ToDo:
             <div class="body"><div><form data-ref="form">
                 <h3><i class="icon icon-24 icon-clone"></i>Add points to route</h3>
                 <p>Explanation. Bla Bla.</p>
-		
+
 				<div class="formbox umap-field-graph-hopper-api-key" data-ref="container">
 					<label title="apikey" data-ref="label" data-help="">API Key</label>
 					<input type="text" placeholder="" name="graphHopperApiKey" id="graphHopperApiKey" data-ref="input" />
 					<!-- <small class="help-text" data-ref="helpText" hidden=""></small> -->
 				</div>
-					
+
 				<div class="formbox umap-field-datalayer" data-ref="container">
 					<div class="select-with-actions">
 						<select name="datalayer" id="routeDataLayer" data-ref="select"></select>
@@ -90,8 +90,8 @@ ToDo:
 					<small class="help-text" data-ref="helpText" hidden=""></small>
 				</div>
 
-				</div>		
-					
+				</div>
+
 				<div class="formbox umap-field-profile" data-ref="container">
 					<label title="Routing profile" data-ref="label" data-help="">Routing profile</label>
 					<select name id="graphHopperProfile" name="graphHopperProfile">
@@ -100,8 +100,8 @@ ToDo:
 						<option value="foot">Foot</option>
 					</select>
 					<small class="help-text" data-ref="helpText" hidden=""></small>
-				</div>			
-				
+				</div>
+
 				<div class="formbox umap-field-type" data-ref="container">
 					<label title="Route points" data-ref="label" data-help="">Route points</label>
 					<ul id="routePoints">
@@ -113,7 +113,7 @@ ToDo:
             </form></div></div>
 		`;
 	}
-	
+
 	function fillRouteFormDataLayer() {
 		const options = [];
 		U.MAP.layers._children.forEach(layer => {
@@ -124,15 +124,15 @@ ToDo:
 			options.push(option)
 		});
 		options.sort((a, b) => b.rank - a.rank); // For some reason, rank is in reverse order
-		
+
 		const select = document.getElementById('routeDataLayer');
 		options.forEach(option => select.appendChild(option));
-		
+
 		if (U.MAP._editedFeature) {
 			select.value = layerKeyFromId(U.MAP._editedFeature.id);
 		}
 	}
-	
+
 	function fillRouteForm(ids='') {
 		console.log(`fillRouteForm(ids)`)
 		document.getElementById('graphHopperApiKey').value = localStorage.getItem('graphHopperApiKey');
@@ -154,7 +154,7 @@ ToDo:
 			console.log('openend');
 			panel = document.querySelector('.panel.right.dark');
 		}
-		
+
 		panel.querySelector('.body').innerHTML = routingHtml();
 		fillRouteForm();
 		panel.classList.add('on');
@@ -188,33 +188,11 @@ ToDo:
         }
 	}
 
-	function coordinatesFromId(id) {
-		return [...U.MAP.layers._children]
-			.filter((x)=> x[1].features.has(id))[0][1]
-			.features.get(id)
-			._geometry.coordinates
-		;
-	}
-
-	function layerFromId(id) {
-		return [...U.MAP.layers._children]
-			.filter((x)=> x[1].features.has(id))[0][1]
-		;
-	}
-
-	function layerKeyFromId(id) {
-		return [...U.MAP.layers._children]
-			.filter((x)=> x[1].features.has(id))[0][0]
-		;
-	}
-
-	function nameFromId(id) {
-		return [...U.MAP.layers._children]
-			.filter((x)=> x[1].features.has(id))[0][1]
-			.features.get(id)
-			.properties.name
-		;
-	}
+	const layerFromId = (id) => [...U.MAP.layers._children].filter((x)=> x[1].features.has(id))[0][1];
+	const layerKeyFromId = (id) => [...U.MAP.layers._children].filter((x)=> x[1].features.has(id))[0][0];
+	const featuresFromId = (id) => layerFromId(id).features.get(id);
+	const coordinatesFromId = (id) => featuresFromId(id)._geometry.coordinates;
+	const nameFromId = (id) => featuresFromId(id).properties.name;
 
 	function addToRoute(id) {
 		console.log(`addToRoute(${id})`);
@@ -243,7 +221,7 @@ ToDo:
 		// Have to include the orderable module somehow
 		// const orderable = new Orderable(ul, onReorder);
 	}
-	
+
 	function addRoute() {
 		console.log('AddRoute()');
 		const apiKey = document.getElementById('graphHopperApiKey').value;
@@ -254,17 +232,17 @@ ToDo:
 		const url = 'https://graphhopper.com/api/1/route?key=' + apiKey;
 		const headers = new Headers();
 		headers.append("Content-Type", "application/json");
-		
+
 		const data = {
 			elevation: false,
 			points: Array
 				.from(document.getElementById('routePoints').children)
 				.map(elem => coordinatesFromId(elem.dataset.featureId)),
-			points_encoded: false,	
+			points_encoded: false,
 			profile: profile,
 		}
 		console.log(data);
-	
+
 		window.fetch(
 			url,
 			{
@@ -289,7 +267,7 @@ ToDo:
 				const duration = new Date(json.paths[0].time).toISOString().substr(11, 8);
 
 				let properties = {}
-				
+
 				if (U.MAP._editedFeature) {
 					properties = U.MAP._editedFeature.properties;
 					layerFromId(U.MAP._editedFeature.id).features.get(U.MAP._editedFeature.id).del();
@@ -327,7 +305,7 @@ ToDo:
 		console.log('addRoutingForm()');
 		document.querySelector('.umap-field-feature-ids').innerHTML = routingHtml();
 		fillRouteForm(U.MAP._editedFeature.properties['feature-ids']);
-		document.querySelector('[data-feature="'+U.MAP._editedFeature.id+'"]'); 
+		document.querySelector('[data-feature="'+U.MAP._editedFeature.id+'"]');
 	}
 
 
