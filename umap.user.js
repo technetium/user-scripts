@@ -76,9 +76,11 @@ ToDo:
                 <p>Explanation. Bla Bla.</p>
 
 				<div class="formbox umap-field-graph-hopper-api-key" data-ref="container">
-					<label title="apikey" data-ref="label" data-help="">API Key</label>
-					<input type="text" placeholder="" name="graphHopperApiKey" id="graphHopperApiKey" data-ref="input" />
-					<!-- <small class="help-text" data-ref="helpText" hidden=""></small> -->
+					<details>
+						<summary>API Key</summary>
+						<input type="text" placeholder="" name="graphHopperApiKey" id="graphHopperApiKey" data-ref="input" />
+						<!-- <small class="help-text" data-ref="helpText" hidden=""></small> -->
+					</details>
 				</div>
 
 				<div class="formbox umap-field-datalayer" data-ref="container">
